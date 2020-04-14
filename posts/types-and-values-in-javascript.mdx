@@ -1,0 +1,176 @@
+---
+title: "Types and typeof operator in JavaScript"
+date: 2020-04-02
+---
+
+As you may know, JavaScript (JS) makes objects (a concept in OOP, computer science) the central part of the language. All most data in JS is either object or accessed through objects. Hence, working with and understand objects is the key to understanding JS as a whole. Though JS has no concept of classes, it still uses two kinds of types: <i>primitive</i> and <i>reference</i>
+
+ES5.1 specification has to say on the topic:
+
+> An ECMAScript language type corresponds to values that are directly manipulated by an ECMAScript programmer using the ECMAScript language. The ECMAScript language types are Undefined, Null, Boolean, String, Number, and Object.
+
+### What is a type?
+
+Someone would say JS don't have `types`, and they should instead be called `subtypes` or `tags`. To have more specific context, we'll go deeper the definition of types.
+
+A type is an intrinsic, built-in set of characteristics that uniquely identifies the behavior of a particular value and distinguishes it from other values, both to the engine and developer. For example, if both the engine and the developer treat the value 69 (the number) differently than they treat value "69" (the string), then those two values have different types.
+
+### Built-in types
+
+In particular, JS defines seven built-in types, including `symbol` in `ES6`:
+
+- null
+- undefined
+- number
+- boolean
+- string
+- object
+- symbol
+
+And the `typeof` operator inspects the type of the given value, and then returns one of six string values. Yes, it's not an exact 1-to-1 match!
+
+```javascript
+typeof undefined === "undefined" // true
+typeof true === "boolean" // true
+typeof 69 === "number" // true
+typeof "69" === "string" // true
+typeof { age: "69" } === "object" // true
+typeof Symbol() === "symbol" // true
+```
+
+<br />
+It is a special case that it's buggy when combined `null` with the `typeof` operator.
+
+```javascript
+typeof null === "object" // true
+```
+
+<br />
+
+If you want to check null value, you need a compound condition:
+
+```javascript
+var a = null
+!a && typeof a === "object" // true
+```
+
+<br />
+
+The last string value that typeof operator can return is `function`:
+
+```javascript
+typeof function a() {
+  /** Do something cool */
+} === "function" // true
+
+// It's also true with arrow function in ES6
+var func = () => console.log("1")
+typeof func === "function" // true
+```
+
+<br />
+
+Actually a function is a callable object which has an internal [[Call]] property allowing it to be invoked. The function object has `length` property to the number of it's parameters:
+
+```javascript
+let func = (a, b, c) => a - b + c
+
+func.length // 3
+```
+
+<br />
+
+Arrays are also objects too. It's most appropriate to think of functions and arrays also as a `subtype` of object. In this case, arrays, there is an additional characteristic of being numerically indexed.
+
+```javascript
+typeof [1, 2, 3] === "object" // true
+```
+
+<br />
+
+### Checking type with `typeof`
+
+There is an annoying confusion of the error message browsers assign to below conditions:
+
+```javascript
+var a
+
+typeof a // undefined
+typeof b // undefined
+```
+
+<br />
+
+It would be nice if `typeof` return `undeclared` (for example) instead of conflating the result value with the different "undefined" case. This safety guard is a useful feature when dealing with JS in the browser, where multiple scripts can load into the shared global namespace.
+
+```javascript
+// this would throw an error (ReferenceError)
+if (DEBUG) {
+  console.log("Debugging is starting")
+}
+
+// this is a safe existence check
+if (typeof DEBUG !== "undefined") {
+  console.log("Debugging is starting")
+}
+```
+
+<br />
+
+I used to write the first kind of check code untill I read the `(JS You Don't Know)` series. This sort of check is really useful even if you're not using global variable. Imagine a utility function that you want others to copy-paste into their programs or modules, in which you want to check to see if the including program has defined a certain variable or not.
+
+```javascript
+function doSomethingAwesome() {
+  var helper =
+    typeof FeatureXYZ !== "undefined"
+      ? FeatureXYZ
+      : function() {
+          /*..default feature...*/
+        }
+  var val = helper()
+}
+```
+
+<br />
+
+`doSomethingAwesome` function tests for a variable called `FeatureXYZ`. If it found, uses it, otherwise uses its own. If someone includes this utility into their programs/modules, it safely checks if they've defined `FeatureXYZ` or not.
+
+```javascript
+;(function() {
+  function FeatureXYZ() {
+    /* my XYZ feature */
+  }
+
+  // include `doSomethingAwesome`
+  function doSomethingAwesome() {
+    var helper =
+      typeof FeatureXYZ !== "undefined"
+        ? FeatureXYZ
+        : function() {
+            /* ...default feature... */
+          }
+  }
+})()
+```
+
+<br />
+
+Other developers would suggest a design pattern called `dependency injection`, where instead of `doSomethingAwesome` inspecting implicitly for FeatureXYZ, it would need to have a dependency explicitly passed in, like:
+
+```javascript
+function doSomethingAwesome(FeatureXYZ) {
+  var helper =
+    FeatureXYZ ||
+    function() {
+      /* ... default feature ...*/
+    }
+}
+```
+
+<br />
+
+However, the `typeof` undeclared safety guard gives us more options in checking the existence of variable.
+
+### Conclusion
+
+JavaScript has sevarl built-in types which can be identified by the `typeof` operator. Though the `typeof` returns the string type of "undefined" and "undeclared" same, the safety guard (prenventing an error) can helpful in certain cases.

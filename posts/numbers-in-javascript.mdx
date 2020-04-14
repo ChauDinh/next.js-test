@@ -1,0 +1,369 @@
+---
+title: "Numbers in JavaScript"
+date: 2020-04-03
+---
+
+JavaScript has only one numeric type, number, including "integer" and fractional decimal numbers.
+
+### Numeric Syntax
+
+Number literals are expressed in JS generally as base-10 decimal literals. For instance:
+
+```javascript
+var a = 69
+var b = 69.96
+
+// The leading portion of a decimal value, 0, is optional
+var c = 0.69
+```
+
+<br />
+
+By default, most numbers will be outputted as base-10 decimals, with trailing fractional 0s removed. Very large or very small numbers will by default be outputted in exponent form, the same as the output of the toExponential() method, like:
+
+```javascript
+var a = 5e10
+a // 50000000000
+a.toExponential() // "5e+10"
+
+var b = a * a
+b // 2.5e+21
+
+var c = 1 / a
+c // 2e - 11
+```
+
+<br />
+
+Since Number object wraps number values, number values can access built-in methods of `Number.prototype`. For example:
+
+```javascript
+var a = 69.96
+a.toFixed(0) // "70"
+a.toFixed(1) // "70"
+a.toFixed(2) // "69.96"
+a.toFixed(3) // "69.960"
+a.toFixed(4) // "69.9600"
+```
+
+<br />
+
+`toPrecision` is quite similar but specifies how many digits should be used to represent the value:
+
+```javascript
+var a = 42.59
+
+a.toPrecision(1) // "4e+1"
+a.toPrecision(2) // "43"
+a.toPrecision(3) // "42.6"
+a.toPrecision(4) // "42.59"
+a.toPrecision(5) // "42.590"
+```
+
+<br />
+
+There is a notice when using `toFixed` method that since `.` is a valid numeric character, it will first be interpreted as part of a number literal rather than being interpreted as a property accessor:
+
+```javascript
+42.toFixed(3); // Syntax Error
+```
+
+<br />
+
+There are several ways to fix that issue: `42..toFixed(3)`, `0.42.toFixed(3)`, and `(42).toFixed(3)`. However, with the number literal specifically, this is a particularly confusing coding style and will serve no other purpose but to confuse other developers (and your future self). Avoid it.
+
+### Small Decimal Values
+
+The most famous side effect of using binary floating-point in JavaScript is:
+
+```javascript
+0.1 + 0.2 === 0.3 // false
+```
+
+<br />
+
+Since the representation for 0.1 and 0.2 in binary floating point are not exact. It's really close 0.30000000000000004. So, if we need to compare two numbers like 0.1 + 0.2 and 0.3, you can use a tiny value called "machine epsilon", which is commonly `2^-52` in JavaScript:
+
+```javascript
+if (!Number.EPSILON) {
+  Number.EPSILON = Math.pow(2, -52)
+}
+
+function numbersCloseEnoughToEqual(num1, num2) {
+  return Math.abs(num1 - num2) < Number.EPSILON
+}
+
+var a = 0.1 + 0.2
+var b = 0.3
+
+numbersCloseEnoughToEqual(a, b) // true
+```
+
+<br />
+
+### Testing for Integers
+
+To test if a value is an integer, you can use a ES6-specified `Number.isInteger` or polyfill `.isInteger` for pre-ES6:
+
+```javascript
+if (!Number.isInteger) {
+  Number.isInteger = function(num) {
+    return typeof num === "number" && num % 1 === 0
+  }
+}
+```
+
+<br />
+
+While integers can range up to roughly 9 quadrillion safely (53 bits), there are some numeric operations (like the bitwise operators) that are only defined for 32-bit numbers, so the “safe range” for numbers used in that way must be much smaller.
+The range then is `Math.pow(-2,31)` (-2147483648, about –2.1 billion) up to `Math.pow(2,31)-1` (2147483647, about +2.1 billion).
+
+### Special Values
+
+As I mentioned in the previous article, for the `undefined` type, there is only one value, undefined, and for the `null` type, there is only one value, null. There is another way to get undefined value is the `void` operator:
+
+```javascript
+var a = 42
+console.log(void a, a) // undefined 42
+```
+
+<br />
+
+Like C programming language, you'd used `void`. The `void` operator can be useful in a few other circumstances, if you need to ensure that an expression has no result value
+
+```javascript
+function doSomethingAwesome() {
+  if (!APP.ready) {
+    // try again later
+    return void setTimeout(doSomethingAwesome, 1000)
+  }
+  var result
+  // do some stuffs
+  return result
+}
+
+if (doSomethingAwesome()) {
+  // handle next tasks right away
+}
+```
+
+<br />
+
+Many devs, include me, prefer to just do these actions separately, which doesn't use the `void` operator:
+
+```javascript
+if (!APP.ready) {
+  // try later
+  setTimeout(doSomethingAwesome, 1000)
+  return
+}
+```
+
+<br />
+
+### Special Numbers
+
+`NaN` literally stands for "not a number". It would be much more accurate to think of NaN as being an "invalid number".
+
+```javascript
+var = 2 / "foo"; // NaN
+typeof a === "number"; // true
+```
+
+<br />
+
+In other words, "the type of not-a-number is a number". Moreover, if you have a value in some variable and want to test to see if it's this speical failed-number, you can directly compare to NaN itself!
+
+```javascript
+var a = 2 / "foo"
+
+a == NaN // false
+a === NaN // false
+```
+
+<br />
+
+Nope. This is not the solution, we use the built-in global utility called `isNaN` which tells us the value is NaN or not.
+
+```javascript
+var a = 2 / "foo"
+
+isNaN(a) // true
+```
+
+<br />
+
+However, the `isNaN` has a fatal flaw. The job of this utility is test if the thing passed in is either not a number or number. But it's not quite accurate.
+
+```javascript
+var a = 2 / "foo"
+var b = "foo"
+
+a // NaN
+b // "foo"
+
+window.isNaN(a) // true
+window.isNaN(b) // true
+```
+
+<br />
+
+Though "foo" is literally not a number, it's deffinitely not the NaN value either as well. This bug exists since the very beginning (19 years ago). A simple polyfill for it so that you can safely check NaN value is:
+
+```javascript
+if (!Number.isNaN) {
+  Number.isNaN = function(number) {
+    return typeof number === "number" && window.isNaN(number)
+  }
+}
+
+var a = 2 / "foo"
+var b = "foo"
+
+Number.isNaN(a) // true
+Number.isNaN(b) // false - yes, as we expected!
+```
+
+<br />
+
+Another way we can implement `Number.isNaN` polyfill is taking advantage of peculiar fact that NaN isn't equal to itself.
+
+```javascript
+if (!Number.isNaN) {
+  Number.isNaN = function(number) {
+    return n !== n
+  }
+}
+```
+
+<br />
+
+### Infinities
+
+In JavaScript, the operation `var a = 1 / 0` is well-defined and results in value called `Infinity`.
+
+```javascript
+var a = 1 / 0 // Infinity
+var b = -1 / 0 // -Infinity
+```
+
+JS uses finite numeric representations, so it seems it is possible to overflow even with an operation like addition or subtraction.
+
+```javascript
+var a = Number.MAX_VALUE // 1.7976931348623157e+308
+var b = a + a // Infinity
+var c = a + Math.pow(2, 970) // Infinity
+var d = a + Math.pow(2, 969) // 1.7976931348623157e+308
+```
+
+<br />
+
+`Number.MAX_VALUE + Math.pow(2, 969)` is closer to `Number.MAX_VALUE` than to `Infinity`. If you think too much about that, it’s going to make your head hurt. So don’t. Seriously, stop!
+
+In JS, `infinity / infinity` is not a defined operation. The result is NaN. `finit number / infinity` results 0, and what about `negative finite / infinity`? Keep reading!
+
+### Zeros
+
+In mathematics, there is only one zero (0) value. But, JavaScript has both, a normal zero, 0, and a negative 0, `-0`.
+
+```javascript
+var a = 0 / -3 // -0
+var b = 0 * -3 // -0
+```
+
+<br />
+
+However, if you try to stringify a negative zero value, it will always return 0.
+
+```javascript
+var a = 0 / -3
+
+a.toString() // "0"
+a + "" // "0"
+String(a) // "0"
+JSON.stringify(a) // "0"
+```
+
+<br />
+
+Meanwhile, the reverse operations don't lie us:
+
+```javascript
+;+"-0" // -0
+Number("-0") // -0
+JSON.parse("-0") // -0
+```
+
+<br />
+
+How about the comparision operations? They are also configured to lie:
+
+```javascript
+var a = 0
+var b = 0 / -3
+
+a == b // true
+;-0 == 0 // true
+
+a === b // true
+;-0 === 0 // true
+
+0 > -0 // false
+a > b // false
+```
+
+<br />
+
+So if you want to distinguish a -0 from a 0, you have to be a bit more clever:
+
+```javascript
+function isNegativeZero(number) {
+  n = Number(number)
+  return n === 0 && 1 / n === -Infinity
+}
+
+isNegativeZero(-0) // true
+isNegativeZero(0 / -3) // true
+isNegativeZero(0) // false
+```
+
+<br />
+
+There are certain applications where developers use the magnitude of a value to represent one piece of information (like speed of movement per animation frame) and the sign of that number to represent another piece of information (like the direction of that movement). In those applications, as one example, if a variable arrives at zero and it loses its sign, then you would lose the information of what direction it was moving in before it arrived at zero. Preserving the sign of the zero prevents potentially unwanted information loss.
+
+### The `Object.is`
+
+From ES6, there is a new utility that can be used to test two values for absolute equality, it's called `Object.is`
+
+```javascript
+var a = 2 / "foo"
+var b = -3 * 0
+
+Object.is(a, NaN) // true
+Object.is(b, 0) // false
+```
+
+<br />
+
+The `Object.is` should be used mostly for these special cases of equality since the `==` and `===` operators are known to be safe enough and much more efficient in practice. We can implement the polyfill for Object.is for pre-ES6 environment:
+
+```javascript
+if (!Object.is) {
+  Object.is = function(var1, var2) {
+    // test for NaN
+    if (var1 !== var1) {
+      return var2 !== var2
+    }
+    // test for -0
+    if (var1 === 0 && var2 === 0) {
+      return 1 / var1 === 1 / var2
+    }
+  }
+}
+```
+
+<br />
+
+### Conclusion
+
+The numbers include several special values, like `NaN`, `+Infinity`, `-Infinity` and `-0`. The article discuss some ways that we can deal and avoid weird fact when working with small decimal numbers, making the comparison between two values and compute when the result is 0. The `Object.is` is a useful operation but should only be used in some special cases above.

@@ -1,0 +1,245 @@
+---
+title: "My setup for web development on MacOS (2020)"
+date: 2019-01-30
+---
+Happy new year!
+
+In this post I will share my configuration that I use recently in my Macbook Pro for web development (front end, backend, and a little bit design).
+
+<b><i>Note</i></b>: This MacOS version of the tutorial is 10.12. Yeah, I know it is quite old version but it still works very well for me and I think the setup would work in the later versions. If there is error or mistake, please comment in the bellow and I would update as soon as possible.
+
+<br />
+<br />
+
+### 1. Xcode
+
+Xcode is Apple development bundle and can be download via command line tool easily.
+
+```
+xcode-select --install
+```
+
+Once Xcode is installed, start it up. Then you have to accept license agreements to make sure the tools work normally. At the moment you don’t need to do anything else with the app. Just start it up (It can take a while to run the first time, even on a fast machine) click agree, and shut it down.
+
+### 2. Homebrew
+
+Homebrew is a package manager, means that we can use it to install, update, delete tools that we need on our machine and keep they up-to-date. The installation is quite simple, just open your terminal and type the command:
+
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+Then it would take a while for the install, but that is what you need!
+
+### 3. Database
+
+There are two databases that I’ve use recently, PostgreSQL (SQL) and Mongo (NoSQL). If you also use them, the installation below may help you.
+
+#### PostgreSQL
+
+<i>Installation</i>: Use homebrew (installed above) to install postgresql, in command prompt:
+
+
+```
+brew install postgresql
+```
+
+Once downloaded, to verify you’ve got PostgreSQL installed, run the following command to check your PostgreSQL version:
+
+```
+postgres --version
+```
+<br />
+
+<i>Administration</i>: Run the commands below and the terminal would look like that
+<br />
+<br />
+
+![PostgreSQL](https://readcodewritecode.files.wordpress.com/2020/01/screen-shot-2020-01-29-at-12.28.01.png?w=2045)
+The `psql` postgres is a PostgreSQL command line tool allow psql utility running. To quite the psql, run `\q`. The `\du` command is listing all current users in postgresql database on your machine.
+
+I won't go further with PostgreSQL in this post, but a near future one.
+
+#### MongoDB
+
+We would install mongodb via homebrew (as postgresql), but I would like to introduce you another way that I learned from my teacher.
+
+Actually you can use mongodb in 2 ways, one is local version on your machine and the other is cloud-based version (mongo atlas). In this tutorial, I only setup the local version, the cloud version I would discuss in another near future post.
+
+<i>Installation</i>: I use the community server of mongo (free version), but you can choose enterprise server (fee version) or community server depends on your budget.
+<br />
+<br />
+
+Once the mongo downloaded complete. You have to install another tool called Mongo 3T, a virtual database manager for mongodb. Link download: https://robomongo.org
+
+After the install, the left sidebar is a list of your created databases. And again, I will have a post with more details in near future.
+
+### 4. Git 
+
+Git is a awesome tool for you to mange codes. The Xcode command line tool you’ve installed above contains a copy of Git. To install the latest version of Git, you can do via homebrew in terminal:
+
+```
+brew install git
+```
+
+After install, check the version of git to make sure everything works well:
+
+```
+git --version
+```
+
+<br />
+
+### 5. Visual Studio Code, Vim
+
+Thought I’m a fanboy of VSCode in Javascript programming, I also give a try with vim (actually neovim) recently and I have some configs to share with you.
+
+#### Visual Studio Code
+
+VSCode is a free text editor launched by MS. Most of the time I works with code is on this editor. You can download it from the official site: https://code.visualstudio.com. I currently use VSCode with Monokai Dimmed theme and some extensions supporting JS development.
+
+The integrated terminal I use the extension one published by Jun Han.
+
+After the install, you can launch the VSCode inside your terminal.
+
+```
+code . # Will open VSCode in the current directory
+code file_name.jsx # Will open the file fileName.jsx in VSCode
+```
+<br />
+
+#### Vim
+
+Vim is a famous, highly configurable text editor. Like other tools, you can install vim via homebrew
+
+```
+brew install vim
+```
+
+You can config vim as a IDE with plugins published on github. In particular, you need a vimrc file to store all your vim configs.
+
+```
+git clone https://github.com/amix/vimrc.git ~/.vim_runtime
+```
+
+To install the complete version:
+
+```
+sh ~/.vim_runtime/install_awesome_vimrc.sh
+```
+
+To install the basic version (recommended):
+
+```
+sh ~/.vim_runtime/install_basic_vimrc.sh
+```
+
+And here is my config file for neovim, you can check and read the guide for the install: https://github.com/ChauDinh/neovim-config
+
+There are so many vimrc files on github for you to reference. The best practice here is just choose what tools you think they help your work efficiently.
+
+### 6. iTerm2
+
+iTerm2 is an open source command line prompt. It is considered as an alternative for Apple terminal as it’s more highly customizable, has GPU rendering, etc.
+
+```
+brew cask install iterm2
+```
+<br />
+
+#### The Z shell (Zsh)
+
+The Z shell (Zsh) is a Unix shell built on top of bash (the default shell of MacOS), including more features.
+
+```
+brew install zsh
+```
+
+<br />
+Then, you have to install a framework, I personally like Oh-My-Zsh.
+<br />
+<br />
+
+```
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+```
+<br />
+
+The installation script should set zsh to your default shell, but if it doesn’t you can do it manually:
+
+```
+chsh -s $(which zsh)
+```
+<br />
+
+Like vim, you have a file called .zshrc to store all your configs. To apply the changes you make you need to either start new shell instance or run:
+
+```
+source ~/.zshrc
+```
+<br />
+
+For more details about the config guide, you can check the tutorial https://github.com/ohmyzsh/ohmyzsh. One thing I would say is that just choose plugins are really needed for your job.
+
+
+### 7. Node.JS
+
+Node.JS is a javascript runtime allowing us write javascript in server-side. So, you can build an app from front end to back end with only 1 programming language.
+
+```
+brew install node
+```
+<br />
+
+You can use a package nvm to dynamically switch version of node you want.
+
+```
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.1/install.sh | bash
+```
+<br />
+
+Then, download Node and select the version by running:
+
+```
+source ~/.bashrc        # source your bashrc/zshrc to add nvm to PATH
+command -v nvm          # check the nvm use message
+nvm install node        # install most recent Node stable version
+nvm ls                  # list installed Node version
+nvm use node            # use stable as current version
+nvm ls-remote           # list all the Node versions you can install
+nvm alias default node  # set the installed stable version as the default Node
+```
+<br />
+
+### 8. Docker
+
+Docker is a platform for developers develop, ship and run applications. You can check the installation guide for MacOS here https://docs.docker.com/docker-for-mac/install/
+
+If you use an old MacOS version, like me, maybe Docker Toolbox is a great solution to use docker on your machine since the OS system doesn’t meet the requirements of Docker Desktop for Mac or Docker Desktop for Window.
+
+```
+brew cask install docker-toolbox
+```
+<br />
+
+Then, you can test by starting a hello-world container
+
+```
+docker run hello-world
+```
+<br />
+
+![Docker demo](https://readcodewritecode.files.wordpress.com/2020/01/screen-shot-2020-01-29-at-14.27.36.png?w=2046)
+
+### 9. Adobe XD, Sketch
+
+Since working with web/app development requires developers know fundamentals of design principles, UI/UX, etc, XD is a great tools for practicing as well as drawing your ideas.
+
+You can download XD via the official page of Adobe (includes trial time): https://www.adobe.com/creativecloud.html
+
+Another tool for app design is Sketch. Unfortunately it is only available for MacOS. https://www.sketch.com
+
+
+
+
+
+

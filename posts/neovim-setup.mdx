@@ -1,0 +1,127 @@
+---
+title: "My nvim setup for JavaScript development (2020)"
+date: 2020-01-31
+---
+
+Vim is a great text editor as you can config almost things you want. The config file `init.vim` can run cross platform. In this post I will share some thought about using vim (actually neovim) in daily and how to make it become more elegant.
+
+### 1. Why Vim/NeoVim?
+
+- Most of the time I, as developer, work on terminal screen so using a text editor in terminal could be a good choice seen I don't have to switch between screens.
+- Moving line-by-line in vim is actually faster than normal IDE. Everything you can do with your keyboard and the mouse/trackpad is unneeded.
+- Vim is a highly-configurable text editor so you can manage, custom what vim should look like based on your job and personality.
+- As I mentioned, using Vim means that you have to work alot with keyboard ... and there is a myriad of mechanical keyboards on the market supporting your work efficiently. 
+
+![keyboard](https://preview.redd.it/fw0p8naig0d21.png?width=960&crop=smart&auto=webp&s=015134df7b32f40e6c00d9ecfae551084536e73d)*source - https://preview.redd.it/fw0p8naig0d21.png?width=960&crop=smart&auto=webp&s=015134df7b32f40e6c00d9ecfae551084536e73d*
+
+The typing experience on a mechanical keyboard is always better than the experience on a built-in keyboard on your laptop, which would produce a desirable working outcomes on vim.
+
+### 2. Installation
+
+I did write a post about setup on MacOS including vim installation, so you can check it here: https://amanlearnscode.netlify.com/macos-setup/
+
+Base on your need, you can choose between Vim, NeoVim or MacVim. I choose NeoVim as it supports `true color`, making my experience more colorful.
+
+```
+brew install neovim
+```
+<br />
+
+The guides for other operating systems can be found here: https://github.com/neovim/neovim/wiki/Installing-Neovim
+
+### 3. Configuration
+
+Your configuration for neovim is stored in a file called `init.vim`. After install neovim, you can check the file at path `~/.config/nvim/init.vim`
+
+#### Plugin Management
+
+Like Vim, NeoVim needs a plugin management to install all plugins you need. There is some tools you can choose: `Vundle`, `Vim-Plug`. I choose `Vim-Plug` since `Vundle` doesn't maintained anymore.
+
+Vim-Plug: https://github.com/junegunn/vim-plug#installation
+
+```
+curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+```
+<br />
+
+After install, you can add plugins you need in file `init.vim`. Then you have to reload the file `init.vim` (I usually use `:source%` command instead of restarting neovim). Then you type `:PlugInstall` to allow `Vim-Plug` install all plugins you listed in the file.
+
+There are 2 more command I also use: `PlugUpdate` to update plugins to newer version and `PlugClean` to uninstall plugins unlisted in the file.
+
+#### Dotfile
+
+There are so many developers share dotfile (the file of vim/neovim config) on github, including some interesting plugins that you may need. However
+
+> "Don't put any lines in your init.vim that you don't understand."
+
+#### Theme
+
+The neovim you've installed maybe just a blank black screen. To color it, the fast and easiest way is using a theme. 
+
+Vim/NeoVim colors: https://vimcolors.com
+
+For example, I want to my neovim has the `gruvbox` theme. So I add these lines in the `init.vim` file.
+
+```
+call plug#begin('~/.config/nvim/plugged')
+
+Plug 'morhetz/gruvbox'
+
+" Initialize plugin system
+call plug#end()
+
+" Set colorscheme
+colorscheme gruvbox
+
+" Set dark background
+set background=dark
+
+```
+<br />
+
+The `morhetz/gruvbox` is split from the path https://github.com/morhetz/gruvbox
+
+There are some other configs that I usually use:
+
+#### Enable mouse
+
+```
+if has('mouse')
+  set mouse=a
+endif
+```
+<br />
+
+#### Show line number
+
+```
+set nu
+```
+<br />
+
+#### Turn on syntax
+
+```
+syntax on
+```
+<br />
+
+#### NERDTree
+
+```
+Plug 'scrooloose/nerdtree'
+```
+<br />
+
+#### Airline
+
+Airline is one of my favorite tools, it supports my neovim looks like an IDE and displays the vim mode, file changed, etc.
+
+![my neovim](https://i.imgur.com/mAZhUY5.png)
+
+### 5. Conclusion
+
+Work perfectly inside terminal and highly configurable are the advantages of vim compared to orthers like VSCode or Sublime 3. But at the beginning, I couldn't move to NeoVim totally since I have to remember tons of command and key maps.
+
+If you use VSCode, there is an extension call Vim mode so you can install and have vim the experience on vscode. It's a good way to start.
